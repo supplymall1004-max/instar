@@ -11,9 +11,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, PlusSquare, Heart, User } from "lucide-react";
+import { Home, Search, PlusSquare, Heart, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, SignOutButton } from "@clerk/nextjs";
 import { CreatePostModal } from "@/components/post/create-post-modal";
 
 const menuItems = [
@@ -85,6 +85,19 @@ export function Sidebar() {
               </Link>
             );
           })}
+          {/* 로그아웃 버튼 (로그인된 경우만 표시) */}
+          {userId && (
+            <SignOutButton>
+              <button
+                className={cn(
+                  "flex items-center gap-4 px-3 py-3 rounded-lg transition-colors w-full text-left text-instagram-primary hover:bg-gray-50"
+                )}
+              >
+                <LogOut className="w-6 h-6" />
+                <span className="text-base">로그아웃</span>
+              </button>
+            </SignOutButton>
+          )}
         </nav>
       </div>
 
@@ -137,6 +150,19 @@ export function Sidebar() {
               </Link>
             );
           })}
+          {/* 로그아웃 버튼 (로그인된 경우만 표시) */}
+          {userId && (
+            <SignOutButton>
+              <button
+                className={cn(
+                  "flex items-center justify-center w-full py-3 rounded-lg transition-colors text-instagram-primary hover:bg-gray-50"
+                )}
+                title="로그아웃"
+              >
+                <LogOut className="w-6 h-6" />
+              </button>
+            </SignOutButton>
+          )}
         </nav>
       </div>
       <CreatePostModal
