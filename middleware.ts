@@ -18,30 +18,29 @@ export default clerkMiddleware(async (auth, req) => {
     }
 
     // 나머지는 Clerk가 자동으로 인증 처리
-    // auth 객체를 사용하여 인증 상태 확인 (에러 방지)
     await auth();
-    
+
     return NextResponse.next();
-  } catch (error) {
-    // 미들웨어에서 에러가 발생해도 요청을 계속 진행
-    // 환경 변수가 없거나 Clerk 초기화 실패 시에도 공개 라우트는 통과
-    console.error("[Middleware] Error:", error);
-    
-    // 공개 라우트는 에러가 있어도 통과
-    if (isPublicRoute(req)) {
-      return NextResponse.next();
+  } catch (error: any) {
+    // 환경 변수 누락 또는 Clerk 초기화 실패 시
+    // 모든 요청을 통과시켜서 사이트가 작동하도록 함
+    console.error("[Middleware] Clerk 미들웨어 오류:", error?.message || error);
+
+    // 환경 변수 누락 오류인 경우
+    if (error?.message?.includes("Missing secretKey") || error?.message?.includes("secretKey")) {
+      console.warn(
+        "[Middleware] CLERK_SECRET_KEY가 설정되지 않았습니다. Vercel Dashboard에서 환경 변수를 확인하세요."
+      );
     }
-    
-    // 에러가 발생해도 요청을 계속 진행 (Clerk 없이도 작동하도록)
+
+    // 모든 요청을 통과 (에러가 있어도 사이트는 작동)
     return NextResponse.next();
   }
 });
 
 export const config = {
   matcher: [
-    // Skip Next.js internals and all static files, unless found in search params
     "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    // Always run for API routes
     "/(api|trpc)(.*)",
   ],
 };
